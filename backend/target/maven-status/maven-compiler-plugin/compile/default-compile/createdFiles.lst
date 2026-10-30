@@ -1,0 +1,4 @@
+com\scholarpath\config\SecurityConfig.class
+com\scholarpath\health\HealthController.class
+com\scholarpath\ScholarPathApplication.class
+com\scholarpath\config\CorsConfig.class

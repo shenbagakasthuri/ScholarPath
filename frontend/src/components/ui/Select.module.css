@@ -1,0 +1,91 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: 100%;
+}
+
+.label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.required {
+  color: var(--color-error);
+  margin-left: 0.125rem;
+}
+
+.selectWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select {
+  width: 100%;
+  padding: 0.625rem 2.75rem 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-card);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  appearance: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+  cursor: pointer;
+}
+
+.select:hover:not(:disabled) {
+  border-color: var(--color-dusty-rose);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-wine);
+  box-shadow: 0 0 0 3px rgba(97, 44, 64, 0.15);
+}
+
+.select:disabled {
+  background-color: var(--color-soft-blush);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+.hasError .select {
+  border-color: var(--color-error);
+}
+
+.hasError .select:focus {
+  box-shadow: 0 0 0 3px rgba(180, 35, 53, 0.15);
+}
+
+.disabled .label {
+  color: var(--color-text-secondary);
+}
+
+.chevron {
+  position: absolute;
+  right: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.error {
+  font-size: 0.75rem;
+  color: var(--color-error);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.helperText {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
