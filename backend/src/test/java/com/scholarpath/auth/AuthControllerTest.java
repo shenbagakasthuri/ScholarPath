@@ -1,9 +1,12 @@
 package com.scholarpath.auth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scholarpath.config.JwtTokenProvider;
 import com.scholarpath.dto.LoginRequest;
 import com.scholarpath.dto.RegisterRequest;
 import com.scholarpath.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -33,6 +40,9 @@ class AuthControllerTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     @BeforeEach
     void setUp() {
@@ -183,4 +193,26 @@ class AuthControllerTest {
                         .header("Authorization", "Bearer invalid.token.here"))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void expiredAccessTokenRejected() throws Exception {
+        Field secretField = JwtTokenProvider.class.getDeclaredField("jwtSecret");
+        secretField.setAccessible(true);
+        String jwtSecret = (String) secretField.get(jwtTokenProvider);
+
+        String expiredToken = Jwts.builder()
+                .subject("1")
+                .claim("email", "expired@example.com")
+                .claim("role", "STUDENT")
+                .claim("token_type", "access")
+                .issuedAt(new Date(System.currentTimeMillis() - 60_000))
+                .expiration(new Date(System.currentTimeMillis() - 1_000))
+                .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8)))
+                .compact();
+
+        mockMvc.perform(get("/profile")
+                        .header("Authorization", "Bearer " + expiredToken))
+                .andExpect(status().isUnauthorized());
+    }
+
 }
