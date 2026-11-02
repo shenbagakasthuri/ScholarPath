@@ -38,10 +38,15 @@ ScholarPath/
 - **Spring Boot 3.2.2** with Web, JPA, Security, Validation, Actuator, WebFlux, Flyway
 - **Database**: MySQL 8 (config in application.yml with env vars)
 - **Schema**: Comprehensive V1 migration with 10+ tables (users, student_profiles, educational_backgrounds, scholarships, eligibility_criteria, matches, conversations, etc.)
-- **Security**: Spring Security with JWT dependencies (not yet wired)
+- **Security**: Spring Security with JWT authentication (Phase 2 complete + hardening)
+  - Token type claims (access/refresh) with filter validation
+  - BCrypt password hashing
+  - Rate limiting (10 req/min per IP per endpoint)
+  - In-memory refresh token revocation with rotation
+  - Stateless sessions
 - **AI**: Config placeholders for OpenAI/Anthropic (no integration yet)
-- **API**: Only `/api/health` endpoint exists
-- **Tests**: 1 passing health endpoint test (H2 in-memory, Flyway disabled)
+- **API**: `/api/health`, `/api/auth/*` (register, login, refresh, logout)
+- **Tests**: 15 passing (1 health + 2 scholarship + 3 user + 9 auth) (H2 in-memory, Flyway disabled)
 
 ### Database (V1__initial_schema.sql)
 Tables: users, student_profiles, educational_backgrounds, scholarship_categories, scholarship_providers, scholarships, eligibility_criteria, scholarship_deadlines, user_saved_scholarships, scholarship_matches, conversations, conversation_messages, audit_logs
@@ -68,7 +73,16 @@ Tables: users, student_profiles, educational_backgrounds, scholarship_categories
 - [x] Spring Boot project structure with Maven
 - [x] Health endpoint: GET /api/health (returns status, service, timestamp)
 - [x] CORS configuration for Vite dev origin (localhost:5173)
-- [x] Security configuration permitting health endpoint
+- [x] Spring Security with JWT authentication (register, login, refresh, logout)
+- [x] JWT token provider with access (24h) and refresh (7d) tokens with type claims
+- [x] BCrypt password hashing
+- [x] JWT authentication filter (access tokens only)
+- [x] Rate limiting filter (10 req/min per IP)
+- [x] Refresh token revocation (in-memory, rotation on refresh)
+- [x] Global exception handler for auth errors
+- [x] Secure JWT config (no weak default, env var required, startup validation)
+- [x] Production-safe logging levels (INFO/WARN)
+- [x] 15 passing tests (1 health + 2 scholarship + 3 user + 9 auth)
 - [x] Environment-based MySQL configuration (DB_USERNAME, DB_PASSWORD)
 - [x] Flyway migration with comprehensive database schema
 - [x] H2 in-memory test configuration
@@ -225,7 +239,7 @@ Tables: users, student_profiles, educational_backgrounds, scholarship_categories
 - `npm run lint`: Available (oxlint)
 
 ### Backend
-- `mvn test`: ✅ 1/1 test passes (HealthControllerTest)
+- `mvn test`: ✅ 15/15 tests pass (HealthControllerTest, ScholarshipRepositoryTest, UserRepositoryTest, AuthControllerTest)
 - `mvn package`: ✅ Builds successfully (JAR created)
 - Prerequisites: Java 19, Maven 3.9.10 (both available)
 - Missing: MySQL (not installed on dev machine)
